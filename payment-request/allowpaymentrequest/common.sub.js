@@ -7,6 +7,10 @@ const tests = {};
 
 window.onmessage = (e) => {
   const result = e.data;
+  if(!('urlQuery' in result)) {
+    // skip other types of messages
+    return;
+  }
   const tagName = result.urlQuery;
   const t = tests[tagName];
   t.step(() => {
