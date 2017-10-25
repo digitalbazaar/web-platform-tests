@@ -2918,5 +2918,41 @@ policies and contribution forms [3].
 
     test_environment.on_tests_ready();
 
+    // inject payment polyfill
+    promise_test(async () => {
+        return new Promise((resolve, reject) => {
+            function loadPolyfill() {
+                //console.log('testharness payment polyfill loading');
+                const polyfill = window['payment-handler-polyfill'];
+                const MEDIATOR_ORIGIN =
+                    //'https://payment-mediator.demo.digitalbazaar.com';
+                    'https://payment.mediator.dev:12443/';
+                (async () => {
+                    const api = await polyfill.loadOnce(
+                        MEDIATOR_ORIGIN + '/mediator?origin=' +
+                        encodeURIComponent(window.location.origin));
+                    console.log('testharness payment polyfill loaded',
+                        navigator.paymentPolyfill);
+                    window.PaymentRequest = api.PaymentRequest;
+                    resolve();
+                })();
+            }
+
+            //console.log('testharness payment polyfill script loading');
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = '/resources/polyfills/node_modules/payment-handler-polyfill/dist/payment-handler-polyfill.js';
+            script.onload = () => {
+                //console.log('testharness payment polyfill script loaded');
+                // rpc lib requires document.body
+                if(!!document.body) {
+                    loadPolyfill();
+                } else {
+                    document.addEventListener("DOMContentLoaded", loadPolyfill);
+                }
+            };
+            document.head.appendChild(script);
+        });
+    });
 })();
 // vim: set expandtab shiftwidth=4 tabstop=4:

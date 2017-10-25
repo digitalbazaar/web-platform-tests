@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "payment-handler-polyfill": "^0.1.3"
+  }
+}
